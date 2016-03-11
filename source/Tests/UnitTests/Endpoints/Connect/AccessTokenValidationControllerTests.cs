@@ -195,7 +195,7 @@ namespace IdentityServer3.Tests.Endpoints.Connect
             {
             }
 
-            public override Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string expectedScope = null)
+            public override Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string audience, string expectedScope = null)
             {
                 var result = new TokenValidationResult
                 {
@@ -218,7 +218,7 @@ namespace IdentityServer3.Tests.Endpoints.Connect
             {
             }
 
-            public override Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string expectedScope = null)
+            public override Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string audience, string expectedScope = null)
             {
                 var result = new TokenValidationResult
                 {

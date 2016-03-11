@@ -36,7 +36,7 @@ namespace IdentityServer3.Tests.Validation
 
             var token = new Token(Constants.TokenTypes.AccessToken)
             {
-                Audience = "https://idsrv3.com/resources",
+                Audience = new List<string> { "https://idsrv3.com/resources" },
                 Issuer = "https://idsrv3.com",
                 Lifetime = lifetime,
                 Claims = claims,
@@ -63,7 +63,7 @@ namespace IdentityServer3.Tests.Validation
 
             var token = new Token(Constants.TokenTypes.AccessToken)
             {
-                Audience = "https://idsrv3.com/resources",
+                Audience = new List<string> { "https://idsrv3.com/resources" },
                 Issuer = "https://idsrv3.com",
                 Lifetime = lifetime,
                 Claims = claims,
@@ -84,7 +84,7 @@ namespace IdentityServer3.Tests.Validation
 
             var token = new Token(Constants.TokenTypes.IdentityToken)
             {
-                Audience = clientId,
+                Audience = new List<string> { clientId },
                 Client = clients.FindClientByIdAsync(clientId).Result,
                 Issuer = "https://idsrv3.com",
                 Lifetime = 600,
@@ -110,7 +110,7 @@ namespace IdentityServer3.Tests.Validation
 
             var token = new Token(Constants.TokenTypes.IdentityToken)
             {
-                Audience = clientId,
+                Audience = new List<string> { clientId },
                 Client = clients.FindClientByIdAsync(clientId).Result,
                 Issuer = "https://idsrv3.com",
                 Lifetime = 600,

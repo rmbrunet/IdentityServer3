@@ -53,7 +53,7 @@ namespace IdentityServer3.Tests.TokenClients
 
             payload.Count().Should().Be(10);
             payload.Should().Contain("iss", "https://idsrv3");
-            payload.Should().Contain("aud", "https://idsrv3/resources");
+            payload.Should().Contain("aud", "api1");
             payload.Should().Contain("client_id", "client.custom");
             payload.Should().Contain("scope", "api1");
             payload.Should().Contain("sub", "818727");

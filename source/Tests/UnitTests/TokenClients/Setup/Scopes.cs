@@ -33,7 +33,24 @@ namespace IdentityServer3.Tests.TokenClients
                 {
                     Name = "api3",
                     Type = ScopeType.Resource
-                }
+                },
+
+                new Scope
+                {
+                    Name = "srv.api1",
+                    Type = ScopeType.Resource,
+
+                    ScopeSecrets = new List<Secret>
+                    {
+                        new Secret("secret".Sha256())
+                    }
+                },
+                new Scope
+                {
+                    Name = "srv.api2",
+                    Type = ScopeType.Resource
+                },
+
             };
         }
     }

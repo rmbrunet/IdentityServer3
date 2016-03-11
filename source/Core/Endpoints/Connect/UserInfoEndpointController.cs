@@ -23,6 +23,7 @@ using IdentityServer3.Core.ResponseHandling;
 using IdentityServer3.Core.Results;
 using IdentityServer3.Core.Services;
 using IdentityServer3.Core.Validation;
+using Microsoft.Owin;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -43,6 +44,7 @@ namespace IdentityServer3.Core.Endpoints
         private readonly BearerTokenUsageValidator _tokenUsageValidator;
         private readonly IdentityServerOptions _options;
         private readonly IEventService _events;
+        private readonly IOwinContext _context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserInfoEndpointController"/> class.
@@ -52,13 +54,20 @@ namespace IdentityServer3.Core.Endpoints
         /// <param name="generator">The generator.</param>
         /// <param name="tokenUsageValidator">The token usage validator.</param>
         /// <param name="events">The event service</param>
-        public UserInfoEndpointController(IdentityServerOptions options, TokenValidator tokenValidator, UserInfoResponseGenerator generator, BearerTokenUsageValidator tokenUsageValidator, IEventService events)
+        public UserInfoEndpointController(
+            IdentityServerOptions options, 
+            TokenValidator tokenValidator, 
+            UserInfoResponseGenerator generator, 
+            BearerTokenUsageValidator tokenUsageValidator, 
+            IEventService events, 
+            IOwinContext context)
         {
             _tokenValidator = tokenValidator;
             _generator = generator;
             _options = options;
             _tokenUsageValidator = tokenUsageValidator;
             _events = events;
+            _context = context;
         }
 
         /// <summary>
@@ -70,6 +79,8 @@ namespace IdentityServer3.Core.Endpoints
         public async Task<IHttpActionResult> GetUserInfo(HttpRequestMessage request)
         {
             Logger.Info("Start userinfo request");
+
+            var issuer = _context.GetIdentityServerIssuerUri();
 
             var tokenUsageResult = await _tokenUsageValidator.ValidateAsync(request.GetOwinContext());
             if (tokenUsageResult.TokenFound == false)
@@ -85,6 +96,7 @@ namespace IdentityServer3.Core.Endpoints
 
             var tokenResult = await _tokenValidator.ValidateAccessTokenAsync(
                 tokenUsageResult.Token,
+                string.Format(Constants.AccessTokenAudience, issuer.EnsureTrailingSlash()),
                 Constants.StandardScopes.OpenId);
 
             if (tokenResult.IsError)

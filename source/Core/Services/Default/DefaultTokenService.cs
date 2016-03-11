@@ -78,7 +78,12 @@ namespace IdentityServer3.Core.Services.Default
         /// <param name="tokenHandles">The token handles.</param>
         /// <param name="signingService">The signing service.</param>
         /// <param name="events">The events service.</param>
-        public DefaultTokenService(IdentityServerOptions options, IClaimsProvider claimsProvider, ITokenHandleStore tokenHandles, ITokenSigningService signingService, IEventService events)
+        public DefaultTokenService(
+            IdentityServerOptions options, 
+            IClaimsProvider claimsProvider, 
+            ITokenHandleStore tokenHandles, 
+            ITokenSigningService signingService, 
+            IEventService events)
         {
             _options = options;
             _claimsProvider = claimsProvider;
@@ -96,7 +101,13 @@ namespace IdentityServer3.Core.Services.Default
         /// <param name="signingService">The signing service.</param>
         /// <param name="events">The OWIN environment service.</param>
         /// <param name="owinEnvironmentService">The events service.</param>
-        public DefaultTokenService(IdentityServerOptions options, IClaimsProvider claimsProvider, ITokenHandleStore tokenHandles, ITokenSigningService signingService, IEventService events, OwinEnvironmentService owinEnvironmentService)
+        public DefaultTokenService(
+            IdentityServerOptions options, 
+            IClaimsProvider claimsProvider, 
+            ITokenHandleStore tokenHandles, 
+            ITokenSigningService signingService, 
+            IEventService events, 
+            OwinEnvironmentService owinEnvironmentService)
         {
             _options = options;
             _claimsProvider = claimsProvider;
@@ -171,7 +182,7 @@ namespace IdentityServer3.Core.Services.Default
 
             var token = new Token(Constants.TokenTypes.IdentityToken)
             {
-                Audience = request.Client.ClientId,
+                Audience = new List<string> { request.Client.ClientId },
                 Issuer = IssuerUri,
                 Lifetime = request.Client.IdentityTokenLifetime,
                 Claims = claims.Distinct(new ClaimComparer()).ToList(),
@@ -205,9 +216,25 @@ namespace IdentityServer3.Core.Services.Default
                 claims.Add(new Claim(Constants.ClaimTypes.JwtId, CryptoRandom.CreateUniqueId()));
             }
 
+
+            var auds = request
+                .Scopes
+                .Where(scope => 
+                    scope.Type == ScopeType.Resource 
+                    && scope.Name != Constants.StandardScopes.OfflineAccess
+                    && scope.Name != Constants.StandardScopes.Instrospection)
+                 .Select(scope => scope.Name.Split('.').First()).Distinct().ToList();
+
+            if (request.Scopes.Any(s => s.Name == Constants.StandardScopes.OpenId)  // Access to UserInfo
+                || request.Scopes.Any(s => s.Name == Constants.StandardScopes.OfflineAccess) // Access to Instrospection
+                || auds.Count() == 0)
+            {
+                auds.Add(string.Format(Constants.AccessTokenAudience, IssuerUri.EnsureTrailingSlash()));
+            }
+
             var token = new Token(Constants.TokenTypes.AccessToken)
             {
-                Audience = string.Format(Constants.AccessTokenAudience, IssuerUri.EnsureTrailingSlash()),
+                Audience = auds, //string.Format(Constants.AccessTokenAudience, IssuerUri.EnsureTrailingSlash()),
                 Issuer = IssuerUri,
                 Lifetime = request.Client.AccessTokenLifetime,
                 Claims = claims.Distinct(new ClaimComparer()).ToList(),

@@ -48,7 +48,7 @@ namespace IdentityServer3.Tests.TokenClients
 
             payload.Count().Should().Be(10);
             payload.Should().Contain("iss", "https://idsrv3");
-            payload.Should().Contain("aud", "https://idsrv3/resources");
+            payload.Should().Contain("aud", "api1");
             payload.Should().Contain("client_id", "roclient");
             payload.Should().Contain("scope", "api1");
             payload.Should().Contain("sub", "88421113");
@@ -80,7 +80,12 @@ namespace IdentityServer3.Tests.TokenClients
 
             payload.Count().Should().Be(10);
             payload.Should().Contain("iss", "https://idsrv3");
-            payload.Should().Contain("aud", "https://idsrv3/resources");
+            //payload.Should().Contain("aud", "https://idsrv3/resources");
+            var aud = payload["aud"] as JArray;
+            aud.Count().Should().Be(2);
+            aud.First().ToString().Should().Be("api1");
+            aud.Skip(1).First().ToString().Should().Be("https://idsrv3/resources");
+
             payload.Should().Contain("client_id", "roclient");
             payload.Should().Contain("sub", "88421113");
             payload.Should().Contain("idp", "idsrv");
@@ -117,7 +122,11 @@ namespace IdentityServer3.Tests.TokenClients
 
             payload.Count().Should().Be(10);
             payload.Should().Contain("iss", "https://idsrv3");
-            payload.Should().Contain("aud", "https://idsrv3/resources");
+
+            var aud = payload["aud"] as JArray;
+            //payload.Should().Contain("aud", "https://idsrv3/resources");
+            aud.Count().Should().Be(2);
+
             payload.Should().Contain("client_id", "roclient");
             payload.Should().Contain("sub", "88421113");
             payload.Should().Contain("idp", "idsrv");

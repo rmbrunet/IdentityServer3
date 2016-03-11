@@ -146,7 +146,7 @@ namespace IdentityServer3.Core.Validation
             return customResult;
         }
 
-        public virtual async Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string expectedScope = null)
+        public virtual async Task<TokenValidationResult> ValidateAccessTokenAsync(string token, string audience = null, string expectedScope = null)
         {
             Logger.Info("Start access token validation");
 
@@ -172,7 +172,7 @@ namespace IdentityServer3.Core.Validation
                 _log.AccessTokenType = AccessTokenType.Jwt.ToString();
                 result = await ValidateJwtAsync(
                     token,
-                    string.Format(Constants.AccessTokenAudience, IssuerUri.EnsureTrailingSlash()),
+                    audience, //string.Format(Constants.AccessTokenAudience, IssuerUri.EnsureTrailingSlash()),
                     await _keyService.GetPublicKeysAsync());
             }
             else
@@ -241,6 +241,8 @@ namespace IdentityServer3.Core.Validation
 
             var parameters = new TokenValidationParameters
             {
+                ValidateAudience = audience != null,
+                ValidateIssuer = true, 
                 ValidIssuer = IssuerUri,
                 IssuerSigningKeys = keys,
                 ValidateLifetime = validateLifetime,
@@ -329,12 +331,13 @@ namespace IdentityServer3.Core.Validation
         {
             var claims = new List<Claim>
             {
-                new Claim(Constants.ClaimTypes.Audience, token.Audience),
+                //new Claim(Constants.ClaimTypes.Audience, token.Audience),
                 new Claim(Constants.ClaimTypes.Issuer, token.Issuer),
                 new Claim(Constants.ClaimTypes.NotBefore, token.CreationTime.ToEpochTime().ToString()),
                 new Claim(Constants.ClaimTypes.Expiration, token.CreationTime.AddSeconds(token.Lifetime).ToEpochTime().ToString())
             };
 
+            claims.AddRange(token.Audience.Select(aud => new Claim(Constants.ClaimTypes.Audience, aud)));
             claims.AddRange(token.Claims);
 
             return claims;

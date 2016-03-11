@@ -49,6 +49,12 @@ namespace IdentityServer3.Tests.Endpoints
                     Type = ScopeType.Resource,
                     DisplayName = "Forbidden scope",
                     Emphasize = true
+                },
+                new Scope
+                {
+                    Name = "instrospection",
+                    Type = ScopeType.Resource,
+                    DisplayName = "Instrospection"
                 }
              };
         }

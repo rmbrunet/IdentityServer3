@@ -24,7 +24,7 @@ namespace IdentityServer3.Tests.TokenClients
 
                     AllowedScopes = new List<string>
                     {
-                        "api1", "api2"
+                        "api1", "api2","srv.api1", "srv.api2"
                     }
                 },
 

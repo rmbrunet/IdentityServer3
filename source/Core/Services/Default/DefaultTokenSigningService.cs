@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using IdentityModel;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Extensions;
 using IdentityServer3.Core.Models;
@@ -110,7 +111,7 @@ namespace IdentityServer3.Core.Services.Default
         {
             var payload = new JwtPayload(
                 token.Issuer,
-                token.Audience,
+                null, //token.Audience,
                 null,
                 DateTimeHelper.UtcNow,
                 DateTimeHelper.UtcNow.AddSeconds(token.Lifetime));
@@ -120,6 +121,9 @@ namespace IdentityServer3.Core.Services.Default
             var normalClaims = token.Claims.Except(amrClaims).Except(jsonClaims);
 
             payload.AddClaims(normalClaims);
+
+            payload.AddClaims(token.Audience.Select(aud => new System.Security.Claims.Claim(JwtClaimTypes.Audience, aud)));
+
 
             // deal with amr
             var amrValues = amrClaims.Select(x => x.Value).Distinct().ToArray();

@@ -30,8 +30,10 @@ namespace IdentityServer3.Core.Validation
             _tokenValidator = tokenValidator;
         }
 
-        public async Task<IntrospectionRequestValidationResult> ValidateAsync(NameValueCollection parameters, Scope scope)
+        public async Task<IntrospectionRequestValidationResult> ValidateAsync(NameValueCollection parameters, Client client)
         {
+            // Validating the received access token obtained by Client Credentials Flow 
+
             var fail = new IntrospectionRequestValidationResult { IsError = true };
 
             // retrieve required token
@@ -44,7 +46,7 @@ namespace IdentityServer3.Core.Validation
             }
 
             // validate token
-            var tokenValidationResult = await _tokenValidator.ValidateAccessTokenAsync(token);
+            var tokenValidationResult = await _tokenValidator.ValidateAccessTokenAsync(token, client.ClientId, StandardScopes.Instrospection.Name);
 
             // invalid or unknown token
             if (tokenValidationResult.IsError)
@@ -57,7 +59,7 @@ namespace IdentityServer3.Core.Validation
 
             // check expected scope
             var expectedScope = tokenValidationResult.Claims.FirstOrDefault(
-                c => c.Type == Constants.ClaimTypes.Scope && c.Value == scope.Name);
+                c => c.Type == Constants.ClaimTypes.Scope && c.Value == StandardScopes.Instrospection.Name);
 
             // expected scope not present
             if (expectedScope == null)

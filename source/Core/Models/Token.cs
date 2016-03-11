@@ -33,8 +33,8 @@ namespace IdentityServer3.Core.Models
         /// <value>
         /// The audience.
         /// </value>
-        public string Audience { get; set; }
-        
+        public List<string> Audience { get; set; }
+
         /// <summary>
         /// Gets or sets the issuer.
         /// </summary>
@@ -42,7 +42,7 @@ namespace IdentityServer3.Core.Models
         /// The issuer.
         /// </value>
         public string Issuer { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the creation time.
         /// </summary>
@@ -50,7 +50,7 @@ namespace IdentityServer3.Core.Models
         /// The creation time.
         /// </value>
         public DateTimeOffset CreationTime { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the lifetime.
         /// </summary>
@@ -58,7 +58,7 @@ namespace IdentityServer3.Core.Models
         /// The lifetime.
         /// </value>
         public int Lifetime { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the type.
         /// </summary>
@@ -66,7 +66,7 @@ namespace IdentityServer3.Core.Models
         /// The type.
         /// </value>
         public string Type { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the client.
         /// </summary>
@@ -116,13 +116,8 @@ namespace IdentityServer3.Core.Models
         /// <value>
         /// The subject identifier.
         /// </value>
-        public string SubjectId
-        {
-            get
-            {
-                return Claims.Where(x => x.Type == Constants.ClaimTypes.Subject).Select(x => x.Value).SingleOrDefault();
-            }
-        }
+        public string SubjectId { get { return Claims.Where(x => x.Type == Constants.ClaimTypes.Subject).Select(x => x.Value).SingleOrDefault(); } }
+
 
         /// <summary>
         /// Gets the client identifier.
@@ -130,13 +125,8 @@ namespace IdentityServer3.Core.Models
         /// <value>
         /// The client identifier.
         /// </value>
-        public string ClientId
-        {
-            get
-            {
-                return Client.ClientId;
-            }
-        }
+        public string ClientId { get { return Client.ClientId; } }
+
 
         /// <summary>
         /// Gets the scopes.
@@ -144,9 +134,6 @@ namespace IdentityServer3.Core.Models
         /// <value>
         /// The scopes.
         /// </value>
-        public IEnumerable<string> Scopes
-        {
-            get { return Claims.Where(x => x.Type == Constants.ClaimTypes.Scope).Select(x => x.Value); }
-        }
+        public IEnumerable<string> Scopes { get { return Claims.Where(x => x.Type == Constants.ClaimTypes.Scope).Select(x => x.Value); } } 
     }
 }

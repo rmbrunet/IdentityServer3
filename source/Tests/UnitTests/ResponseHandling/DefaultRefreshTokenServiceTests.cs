@@ -138,7 +138,7 @@ namespace IdentityServer3.Tests.Connect.ResponseHandling
 
             var token = new Token(Constants.TokenTypes.AccessToken)
             {
-                Audience = "https://idsrv3.com/resources",
+                Audience = new List<string> { "https://idsrv3.com/resources" },
                 Issuer = "https://idsrv3.com",
                 Lifetime = lifetime,
                 Claims = claims,

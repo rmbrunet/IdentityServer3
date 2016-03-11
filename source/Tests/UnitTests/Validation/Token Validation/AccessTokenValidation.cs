@@ -81,7 +81,7 @@ namespace IdentityServer3.Tests.Validation.Tokens
 
             await store.StoreAsync(handle, token);
 
-            var result = await validator.ValidateAccessTokenAsync("123");
+            var result = await validator.ValidateAccessTokenAsync("123", "read");
 
             result.IsError.Should().BeFalse();
             result.Claims.Count().Should().Be(8);
@@ -117,7 +117,7 @@ namespace IdentityServer3.Tests.Validation.Tokens
 
             await store.StoreAsync(handle, token);
 
-            var result = await validator.ValidateAccessTokenAsync("123", "missing");
+            var result = await validator.ValidateAccessTokenAsync("123", "read", "missing");
 
             result.IsError.Should().BeTrue();
             result.Error.Should().Be(Constants.ProtectedResourceErrors.InsufficientScope);
@@ -130,7 +130,7 @@ namespace IdentityServer3.Tests.Validation.Tokens
             var store = new InMemoryTokenHandleStore();
             var validator = Factory.CreateTokenValidator(store);
 
-            var result = await validator.ValidateAccessTokenAsync("unknown");
+            var result = await validator.ValidateAccessTokenAsync("unknown", "");
 
             result.IsError.Should().BeTrue();
             result.Error.Should().Be(Constants.ProtectedResourceErrors.InvalidToken);
@@ -145,7 +145,7 @@ namespace IdentityServer3.Tests.Validation.Tokens
             var options = new IdentityServerOptions();
 
             var longToken = "x".Repeat(options.InputLengthRestrictions.TokenHandle + 1);
-            var result = await validator.ValidateAccessTokenAsync(longToken);
+            var result = await validator.ValidateAccessTokenAsync(longToken, "");
 
             result.IsError.Should().BeTrue();
             result.Error.Should().Be(Constants.ProtectedResourceErrors.InvalidToken);
@@ -167,7 +167,7 @@ namespace IdentityServer3.Tests.Validation.Tokens
             
             now = now.AddMilliseconds(2000);
 
-            var result = await validator.ValidateAccessTokenAsync("123");
+            var result = await validator.ValidateAccessTokenAsync("123", "read");
 
             result.IsError.Should().BeTrue();
             result.Error.Should().Be(Constants.ProtectedResourceErrors.ExpiredToken);
@@ -235,11 +235,11 @@ namespace IdentityServer3.Tests.Validation.Tokens
         {
             var signer = Factory.CreateDefaultTokenSigningService();
             var token = TokenFactory.CreateAccessToken(new Client { ClientId = "roclient" }, "valid", 600, "read", "write");
-            token.Audience = "invalid";
+            token.Audience = new List<string> { "invalid" };
             var jwt = await signer.SignTokenAsync(token);
 
             var validator = Factory.CreateTokenValidator(null);
-            var result = await validator.ValidateAccessTokenAsync(jwt);
+            var result = await validator.ValidateAccessTokenAsync(jwt, "valid");
 
             result.IsError.Should().BeTrue();
             result.Error.Should().Be(Constants.ProtectedResourceErrors.InvalidToken);

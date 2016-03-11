@@ -418,7 +418,9 @@ namespace IdentityServer3.Core
             // not part of spec
             public const string AllClaims     = "all_claims";
             public const string Roles         = "roles";
-        }
+            public const string Instrospection = "instrospection";
+        }            
+
 
         public static class ClaimTypes
         {

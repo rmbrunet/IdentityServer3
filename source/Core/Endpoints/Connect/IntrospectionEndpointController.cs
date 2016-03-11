@@ -41,7 +41,7 @@ namespace IdentityServer3.Core.Endpoints
 
         private readonly IdentityServerOptions _options;
         private readonly IEventService _events;
-        private readonly ScopeSecretValidator _scopeSecretValidator;
+        private readonly ClientSecretValidator _clientSecretValidator;
         private readonly IntrospectionRequestValidator _requestValidator;
         private readonly IntrospectionResponseGenerator _generator;
 
@@ -49,11 +49,11 @@ namespace IdentityServer3.Core.Endpoints
             IntrospectionRequestValidator requestValidator, 
             IdentityServerOptions options, 
             IEventService events,
-            ScopeSecretValidator scopeSecretValidator,
+            ClientSecretValidator clientSecretValidator,
             IntrospectionResponseGenerator generator)
         {
             _requestValidator = requestValidator;
-            _scopeSecretValidator = scopeSecretValidator;
+            _clientSecretValidator = clientSecretValidator;
             _options = options;
             _events = events;
             _generator = generator;
@@ -67,25 +67,25 @@ namespace IdentityServer3.Core.Endpoints
         {
             Logger.Info("Start introspection request");
 
-            var scope = await _scopeSecretValidator.ValidateAsync();
-            if (scope.Scope == null)
+            var clientResult = await _clientSecretValidator.ValidateAsync();
+            if (clientResult.Client == null)
             {
-                Logger.Warn("Scope unauthorized to call introspection endpoint. aborting.");
+                Logger.Warn("Client unauthorized to call introspection endpoint. aborting.");
                 return Unauthorized();
             }
 
             var parameters = await Request.GetOwinContext().ReadRequestFormAsNameValueCollectionAsync();
-            return await ProcessRequest(parameters, scope.Scope);
+            return await ProcessRequest(parameters, clientResult.Client);
         }
 
-        internal async Task<IHttpActionResult> ProcessRequest(NameValueCollection parameters, Scope scope)
+        internal async Task<IHttpActionResult> ProcessRequest(NameValueCollection parameters, Client client)
         {
-            var validationResult = await _requestValidator.ValidateAsync(parameters, scope);
-            var response = await _generator.ProcessAsync(validationResult, scope);
+            var validationResult = await _requestValidator.ValidateAsync(parameters, client);
+            var response = await _generator.ProcessAsync(validationResult, client);
 
             if (validationResult.IsActive)
             {
-                await RaiseSuccessEventAsync(validationResult.Token, "active", scope.Name);    
+                await RaiseSuccessEventAsync(validationResult.Token, "active", client.ClientId);    
                 return new IntrospectionResult(response);
             }
 
@@ -95,19 +95,19 @@ namespace IdentityServer3.Core.Endpoints
                 {
                     Logger.Error("Missing token");
 
-                    await RaiseFailureEventAsync(validationResult.ErrorDescription, validationResult.Token, scope.Name);
+                    await RaiseFailureEventAsync(validationResult.ErrorDescription, validationResult.Token, client.ClientId);
                     return BadRequest("missing_token");
                 }
 
                 if (validationResult.FailureReason == IntrospectionRequestValidationFailureReason.InvalidToken)
                 {
-                    await RaiseSuccessEventAsync(validationResult.Token, "inactive", scope.Name);
+                    await RaiseSuccessEventAsync(validationResult.Token, "inactive", client.ClientId);
                     return new IntrospectionResult(response);
                 }
 
                 if (validationResult.FailureReason == IntrospectionRequestValidationFailureReason.InvalidScope)
                 {
-                    await RaiseFailureEventAsync("Scope not authorized to introspect token", validationResult.Token, scope.Name);
+                    await RaiseFailureEventAsync("Scope not authorized to introspect token", validationResult.Token, client.ClientId);
                     return new IntrospectionResult(response);
                 }
             }
@@ -115,18 +115,18 @@ namespace IdentityServer3.Core.Endpoints
             throw new InvalidOperationException("Invalid token introspection outcome");
         }
 
-        private async Task RaiseSuccessEventAsync(string token, string tokenStatus, string scopeName)
+        private async Task RaiseSuccessEventAsync(string token, string tokenStatus, string clientId)
         {
             await _events.RaiseSuccessfulIntrospectionEndpointEventAsync(
                 token, 
                 tokenStatus, 
-                scopeName);
+                clientId);
         }
 
-        private async Task RaiseFailureEventAsync(string error, string token, string scopeName)
+        private async Task RaiseFailureEventAsync(string error, string token, string clientId)
         {
             await _events.RaiseFailureIntrospectionEndpointEventAsync(
-                error, token, scopeName);
+                error, token, clientId);
         }
     }
 }

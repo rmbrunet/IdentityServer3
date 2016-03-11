@@ -94,7 +94,8 @@ namespace IdentityServer3.Tests.TokenClients
             var userInfo = await userInfoclient.GetAsync();
 
             userInfo.IsError.Should().BeTrue();
-            userInfo.HttpErrorStatusCode.Should().Be(HttpStatusCode.Forbidden);
+            //userInfo.HttpErrorStatusCode.Should().Be(HttpStatusCode.Forbidden);
+            userInfo.HttpErrorStatusCode.Should().Be(HttpStatusCode.Unauthorized); //as openid is missing then audience is missing
         }
 
         [Fact]
@@ -117,7 +118,8 @@ namespace IdentityServer3.Tests.TokenClients
             var userInfo = await userInfoclient.GetAsync();
 
             userInfo.IsError.Should().BeTrue();
-            userInfo.HttpErrorStatusCode.Should().Be(HttpStatusCode.Forbidden);
+            //userInfo.HttpErrorStatusCode.Should().Be(HttpStatusCode.Forbidden);
+            userInfo.HttpErrorStatusCode.Should().Be(HttpStatusCode.Unauthorized); //Aud is missing
         }
     }
 }

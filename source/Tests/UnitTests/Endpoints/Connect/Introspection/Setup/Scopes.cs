@@ -34,7 +34,12 @@ namespace IdentityServer3.Tests.Endpoints.Connect.Introspection.Setup
                     {
                         new Secret("secret".Sha256())
                     }
+                },
+                new Scope
+                {
+                    Name = "instrospection"
                 }
+
             };
         }
     }

@@ -48,7 +48,7 @@ namespace IdentityServer3.Tests.TokenClients
 
             payload.Count().Should().Be(6);
             payload.Should().Contain("iss", "https://idsrv3");
-            payload.Should().Contain("aud", "https://idsrv3/resources");
+            payload.Should().Contain("aud", "api1");
             payload.Should().Contain("client_id", "client");
             payload.Should().Contain("scope", "api1");
         }
@@ -62,7 +62,7 @@ namespace IdentityServer3.Tests.TokenClients
                 "secret",
                 innerHttpMessageHandler: _handler);
 
-            var response = await client.RequestClientCredentialsAsync("api1 api2");
+            var response = await client.RequestClientCredentialsAsync("srv.api1 srv.api2");
 
             response.IsError.Should().Be(false);
             response.ExpiresIn.Should().Be(3600);
@@ -74,13 +74,16 @@ namespace IdentityServer3.Tests.TokenClients
 
             payload.Count().Should().Be(6);
             payload.Should().Contain("iss", "https://idsrv3");
-            payload.Should().Contain("aud", "https://idsrv3/resources");
+
+            payload.Should().Contain("aud", "srv");
+
+
             payload.Should().Contain("client_id", "client");
 
             var scopes = payload["scope"] as JArray;
             scopes.Count().Should().Be(2);
-            scopes.First().ToString().Should().Be("api1");
-            scopes.Skip(1).First().ToString().Should().Be("api2");
+            scopes.First().ToString().Should().Be("srv.api1");
+            scopes.Skip(1).First().ToString().Should().Be("srv.api2");
         }
 
         [Fact]
@@ -105,7 +108,7 @@ namespace IdentityServer3.Tests.TokenClients
 
             payload.Count().Should().Be(6);
             payload.Should().Contain("iss", "https://idsrv3");
-            payload.Should().Contain("aud", "https://idsrv3/resources");
+            payload.Should().Contain("aud", "api1");
             payload.Should().Contain("client_id", "client");
             payload.Should().Contain("scope", "api1");
         }
