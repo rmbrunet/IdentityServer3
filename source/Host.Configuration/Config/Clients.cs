@@ -378,6 +378,32 @@ namespace IdentityServer3.Host.Config
 
                     AccessTokenType = AccessTokenType.Reference
                 },
+                new Client {
+                        ClientId = "resource-owner-client",
+                        ClientName = "Resource Owner Client",
+                        ClientSecrets = new List<Secret>
+                                {
+                                    new Secret("***No Secret***".Sha256())
+                                },
+                        Enabled = true,
+                        Flow = Flows.ResourceOwner,
+                        RequireConsent = false,
+                        AllowRememberConsent = false,
+                        AllowClientCredentialsOnly = true,
+                        RedirectUris = new List<string>(),
+                        PostLogoutRedirectUris = new List<string>(),
+                        AllowedScopes = new List<string>
+                                {
+                                    Constants.StandardScopes.OpenId,
+                                    Constants.StandardScopes.Profile,
+                                    Constants.StandardScopes.Email,
+                                    Constants.StandardScopes.Instrospection,
+                                    "sgapi-items.read",
+                                    "sgapi-items.write"
+                                },
+                        AllowAccessToAllScopes = false,
+                        AccessTokenType = AccessTokenType.Jwt
+                    }
             };
         }
     }

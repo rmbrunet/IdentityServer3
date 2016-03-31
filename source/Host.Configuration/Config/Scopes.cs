@@ -79,7 +79,42 @@ namespace IdentityServer3.Host.Config
                             new ScopeClaim(Constants.ClaimTypes.Name),
                             new ScopeClaim(Constants.ClaimTypes.Role)
                         }
+                    },
+                    new Scope
+                    {
+                        Enabled = true,
+                        Name = "sgapi-items.write",
+                        Description = "Items write Scope",
+                        DisplayName = "", //consent screen
+                        //Required = false, consent screen
+                        //ScopeSecrets for the instrospection endpoint
+                        AllowUnrestrictedIntrospection = true,
+                        //Emphasize consent-screen
+                //        Claims = new List<ScopeClaim> {
+                //            new ScopeClaim(Constants.ClaimTypes.Subject) ,
+                //            new ScopeClaim(Constants.ClaimTypes.Email)
+                //        },
+                        Type = ScopeType.Resource,
+                        ShowInDiscoveryDocument = false
+                    },
+                    new Scope
+                    {
+                        Enabled = true,
+                        Name = "sgapi-items.read",
+                        Description = "Items read Scope",
+                        DisplayName = "", //consent screen
+                        //Required = false, consent screen
+                        //ScopeSecrets for the instrospection endpoint
+                        AllowUnrestrictedIntrospection = true,
+                        //Emphasize consent-screen
+                //        Claims = new List<ScopeClaim> {
+                //            new ScopeClaim(Constants.ClaimTypes.Subject) ,
+                //            new ScopeClaim(Constants.ClaimTypes.Email)
+                //        },
+                        Type = ScopeType.Resource,
+                        ShowInDiscoveryDocument = false
                     }
+
                 };
         }
     }
